@@ -20,4 +20,4 @@ handlers:
   upload: static/index.html
 
 - url: /.*
-  script: convert.py
+  script: app.py

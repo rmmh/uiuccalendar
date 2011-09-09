@@ -2,6 +2,7 @@ import logging
 import os
 import traceback
 from datetime import datetime
+from xml.sax.saxutils import unescape
 
 from google.appengine.ext.webapp import template
 from google.appengine.ext import webapp
@@ -20,6 +21,7 @@ class UIUCCalendar(webapp.RequestHandler):
 
     def post(self):
         schedule = self.request.get('schedule', '')
+        schedule = unescape(schedule)
 
         if len(schedule) > 20000:
             self.error(413) # error: content too long

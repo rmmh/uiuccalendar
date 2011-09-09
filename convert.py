@@ -1,14 +1,9 @@
+#!/usr/bin/python
+
 import logging
 import os
 import traceback
 from datetime import datetime
-
-from google.appengine.ext.webapp import template
-from google.appengine.ext import webapp
-from google.appengine.ext.webapp.util import run_wsgi_app
-from google.appengine.ext import db
-
-from model import Schedule
 
 
 def hour_from_ampm(hour, ispm):
@@ -30,15 +25,18 @@ def date_time_to_timestamp(date, clock):
 
     return datetime.strftime(t, "%Y%m%dT%H%M%S")
 
+
 def parse_class(line):
     split = line.split('\t')
     if len(split) != 12:
         return
 
+    split = map(unicode.strip, split)
+
     (crn, course, title, campus, credits, level, 
             start, end, days, time, location, instructor) = split
 
-    if time in ('TBA', 'Time') or not time.strip():
+    if time in ('TBA', 'Time') or not time:
         return
 
     time_begin, time_end = time.split('-')
@@ -51,9 +49,12 @@ def parse_class(line):
         short, long = pair.split()
         days = days.replace(short, long + ',')
 
-    days = days.rstrip(',')
+    days = days.rstrip(' ,')
 
-    course, section = course.rsplit(' ', 1)
+    if course:
+        course, section = course.rsplit(' ', 1)
+    else:
+        section = ''
 
     return dict(crn=crn, course=course, section=section, title=title,
         campus=campus, credits=credits, level=level, 
@@ -71,6 +72,12 @@ def parse_schedule(text):
         try:
             cls = parse_class(line)
             if cls is not None:
+                if not cls['course'].strip(): # for classes with multiple times,
+                    # subsequent lines don't get a lot of the information repeated
+                    prevcls = classes[-1]
+                    for key in 'crn course section title campus credits level'.split():
+                        cls[key] = prevcls[key]
+
                 classes.append(cls)
         except Exception:
             if not has_debugged:
@@ -80,41 +87,6 @@ def parse_schedule(text):
 
     return classes
 
-
-class UIUCCalendar(webapp.RequestHandler):
-    def get(self):
-        page = os.path.join(os.path.dirname(__file__), 'index.html.tmpl')
-        self.response.out.write(template.render(page, values))
-
-    def post(self):
-        schedule = self.request.get('schedule', '')
-
-        if len(schedule) > 20000:
-            self.error(413) # error: content too long
-            return
-
-        sched = Schedule()
-        sched.text = schedule
-        sched.ip = self.request.remote_addr
-
-        classes = parse_schedule(schedule)
-
-        if classes == []:
-            self.response.out.write("error: unable to find any valid class "
-                    "entries. Try re-reading the instructions, and make "
-                    "sure that you've copied the table correctly.")
-            self.response.set_status(400)
-            return
-
-        page = os.path.join(os.path.dirname(__file__), 'template.ics')
-        self.response.headers['Content-Type'] = 'application/octet-stream'
-        self.response.out.write(template.render(page, {"classes":classes}))
-        sched.put()
-    
-application = webapp.WSGIApplication([('/.*', UIUCCalendar)],debug=True)
-
-def main():
-    run_wsgi_app(application)
-
 if __name__ == "__main__":
-    main()
+    import sys
+    print parse_schedule(unicode(sys.stdin.read()))
