@@ -1,0 +1,20 @@
+BEGIN:VCALENDAR
+PRODID:-//Ryan Hitchman//UIUC Calendar//EN
+VERSION:2.0
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:UIUC Classes
+X-WR-TIMEZONE:America/Chicago
+X-WR-CALDESC:Classes taken at UIUC
+{% for c in classes %}
+BEGIN:VEVENT
+SUMMARY:{{c.course}} - {{c.title}} {{c.section}}
+LOCATION:{{c.location}} 
+DESCRIPTION:{{c.section}} - {{c.instructor}}\nCRN: {{c.crn}}
+DTSTART;TZID=America/Chicago:{{c.time_begin}}
+DTEND;TZID=America/Chicago:{{c.time_end}}
+RRULE:FREQ=WEEKLY;WKST=MO;UNTIL={{c.class_end}};BYDAY={{c.days}}
+TRANSP:OPAQUE
+END:VEVENT
+{% endfor %}
+END:VCALENDAR

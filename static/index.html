@@ -1,0 +1,41 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>UIUC Calendar Converter</title>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+</head>
+<body>
+<h1>UIUC Calendar Converter</h1>
+This site converts UIUC course schedules into something you can use with Google Calendar, Outlook, or iCal.
+<br>
+<h3>Instructions</h3>
+
+<ol>
+    <li>Open up the "Student Schedule - Concise" page on UI-Integrate Self-Service. (Registration &amp; Records &rarr; Registration &rarr; Student Schedule - Concise)</li>
+    <li>Copy the class table and paste it into the form below.
+
+    <p>Each line should look something like this: <font face="monospace">39725	GER 102 B	Beginning German II	Urbana-Champaign	 4.000	1U	Aug 22, 2011	Dec 07, 2011	MTWR	9:00 am - 9:50 am	Foreign Languages Building G46	Castle</font></p>
+    <p>Any lines that can't be understood, including ones where class times are "TBA", will be ignored.</p></li>
+
+    <li>Click "Convert" and save the file.</li>
+    <li>Import it into your favorite calendar program.</li>
+</ol>
+
+<form action="/uiuc_calendar.ics" method="post">
+    <textarea name="schedule" rows="20" cols="80"></textarea>
+    <br><input type="submit" value="Convert" style="height:40px;width:300px"/>
+</form>
+
+
+<h3>Importing into Google Calendar</h3>
+<ol>
+    <li>Create a calendar for UIUC Courses if you don't already have one.</li>
+    <li>Click the down-arrow next to Other calendars</li>
+    <li>Select "Import calendar"</li>
+    <li>Click "Choose file" and find the file that you just saved, then click Open.</li>
+    <li>Select the calendar where you'd like to import events, then click Import.</li>
+</ol>
+
+<p>(c) 2011 Ryan Hitchman | <a href="mailto:hitchma1@illinois.edu">Contact</a></p>
+</body>
+</html>
