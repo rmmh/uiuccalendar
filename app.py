@@ -16,8 +16,7 @@ from model import Schedule
 
 class UIUCCalendar(webapp.RequestHandler):
     def get(self):
-        page = os.path.join(os.path.dirname(__file__), 'index.html.tmpl')
-        self.response.out.write(template.render(page, values))
+        return self.post()
 
     def post(self):
         schedule = self.request.get('schedule', '')
