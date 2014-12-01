@@ -27,3 +27,7 @@ handlers:
 
 - url: /uiuc_calendar.ics
   script: app.app
+
+libraries:
+- name: django
+  version: "1.3"
