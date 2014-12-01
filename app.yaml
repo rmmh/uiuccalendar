@@ -1,7 +1,8 @@
 application: uiuccalendar
 version: 1
-runtime: python
+runtime: python27
 api_version: 1
+threadsafe: true
 
 handlers:
 - url: /static
@@ -25,4 +26,4 @@ handlers:
   upload: static/index.html
 
 - url: /uiuc_calendar.ics
-  script: app.py
+  script: app.app

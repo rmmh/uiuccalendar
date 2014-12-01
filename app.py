@@ -1,13 +1,8 @@
-import logging
 import os
-import traceback
-from datetime import datetime
 from xml.sax.saxutils import unescape
 
 from google.appengine.ext.webapp import template
 from google.appengine.ext import webapp
-from google.appengine.ext.webapp.util import run_wsgi_app
-from google.appengine.ext import db
 
 import convert
 
@@ -23,12 +18,10 @@ class UIUCCalendar(webapp.RequestHandler):
         schedule = unescape(schedule)
 
         if len(schedule) > 20000:
-            self.error(413) # error: content too long
+            self.error(413)  # error: content too long
             return
 
-        sched = Schedule()
-        sched.text = schedule
-        sched.ip = self.request.remote_addr
+        sched = Schedule(text=schedule, ip=self.request.remote_addr)
 
         classes = convert.parse_schedule(schedule)
 
@@ -41,13 +34,8 @@ class UIUCCalendar(webapp.RequestHandler):
 
         page = os.path.join(os.path.dirname(__file__), 'template.ics')
         self.response.headers['Content-Type'] = 'application/octet-stream'
-        self.response.out.write(template.render(page, {"classes":classes}))
+        self.response.out.write(template.render(page, {"classes": classes}))
+
         sched.put()
-    
-application = webapp.WSGIApplication([('/.*', UIUCCalendar)],debug=True)
 
-def main():
-    run_wsgi_app(application)
-
-if __name__ == "__main__":
-    main()
+app = webapp.WSGIApplication([('/.*', UIUCCalendar)])
