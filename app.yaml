@@ -29,5 +29,7 @@ handlers:
   script: app.app
 
 libraries:
-- name: django
-  version: "1.3"
+- name: webapp2
+  version: latest
+- name: jinja2
+  version: latest

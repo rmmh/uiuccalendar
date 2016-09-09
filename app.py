@@ -1,15 +1,25 @@
 import os
 from xml.sax.saxutils import unescape
 
-from google.appengine.ext.webapp import template
-from google.appengine.ext import webapp
+from google.appengine.ext import ndb
+
+import webapp2
+import jinja2
 
 import convert
 
-from model import Schedule
+
+JINJA_ENV = jinja2.Environment(
+    loader=jinja2.FileSystemLoader(os.path.dirname(__file__)))
 
 
-class UIUCCalendar(webapp.RequestHandler):
+class Schedule(ndb.Model):
+    text = ndb.TextProperty()
+    date = ndb.DateTimeProperty(auto_now_add=True)
+    ip = ndb.StringProperty()
+
+
+class UIUCCalendar(webapp2.RequestHandler):
     def get(self):
         return self.post()
 
@@ -32,10 +42,11 @@ class UIUCCalendar(webapp.RequestHandler):
             self.response.set_status(400)
             return
 
-        page = os.path.join(os.path.dirname(__file__), 'template.ics')
+        template = JINJA_ENV.get_template('template.ics')
         self.response.headers['Content-Type'] = 'application/octet-stream'
-        self.response.out.write(template.render(page, {"classes": classes}))
+        self.response.out.write(template.render({"classes": classes}))
 
         sched.put()
 
-app = webapp.WSGIApplication([('/.*', UIUCCalendar)])
+
+app = webapp2.WSGIApplication([('/.*', UIUCCalendar)])

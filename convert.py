@@ -2,9 +2,8 @@
 # Ryan Hitchman, 2011
 # public domain under CC0 / WTFPL
 
-import logging
-import traceback
 from datetime import datetime
+import logging
 
 
 def hour_from_ampm(hour, ispm):
@@ -69,30 +68,24 @@ def parse_class(line):
 
 
 def parse_schedule(text):
-    has_debugged = False
-
     classes = []
-
     for line in text.splitlines():
         try:
             cls = parse_class(line)
             if cls is not None:
-                if not cls['course'].strip(): # for classes with multiple time,
-                    # subsequent lines don't include a lot of the information,
-                    # so fill it in using the previous class
+                if not cls['course'].strip():
+                    # for classes with multiple times, subsequent lines don't
+                    # include a lot of the information, so fill it in using the
+                    # previous class.
                     prevcls = classes[-1]
                     for key in 'crn course section title campus credits level'.split():
                         cls[key] = prevcls[key]
 
                 classes.append(cls)
-        except Exception:
-            if not has_debugged:
-                logging.debug(text)
-                has_debugged = True
-            logging.warning(traceback.format_exc())
+        except:
+            logging.exception('unable to parse line: %r', line)
 
-    if not classes and not has_debugged:
-        logging.debug(text)
+    logging.debug('schedule %r => %s', text, classes)
 
     return classes
 

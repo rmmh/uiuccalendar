@@ -11,6 +11,9 @@ import app
 class HandlerTest(unittest.TestCase):
     def setUp(self):
         self.testapp = webtest.TestApp(app.app)
+        self.testbed.activate()
+        self.testbed.init_memcache_stub()
+        self.testbed.init_datastore_v3_stub()
 
     def make_fake_schedule(self,
                            start='Jan 1, 2014',
@@ -75,3 +78,9 @@ class HandlerTest(unittest.TestCase):
         ics = self.get_calendar(start='Jan 10, 2014', end='May 5, 2014')
         self.assertRegexpMatches(ics, r'DTSTART.*:20140110T')
         self.assertRegexpMatches(ics, r'RRULE:FREQ=WEEKLY.*UNTIL=20140505T')
+
+    def test_datastore(self):
+        ics = self.get_calendar()
+        entries = list(app.Schedule.query())
+        self.assertEqual(len(entries), 1)
+        self.assertIn('CS123', entries[0].text)
