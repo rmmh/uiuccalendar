@@ -2,7 +2,7 @@
 # Ryan Hitchman, 2011
 # public domain under CC0 / WTFPL
 
-from datetime import datetime
+from datetime import datetime, timedelta
 import logging
 
 
@@ -17,12 +17,17 @@ def hour_from_ampm(hour, ispm):
     return hour
 
 
-def date_time_to_timestamp(date, clock):
+def date_time_to_timestamp(date, clock, weekdays=None):
     # ("Jan 27, 2011", "8:00 pm") -> "20110127T200000"
     t = datetime.strptime(date.strip(), "%b %d, %Y")
     c = datetime.strptime(clock.strip(), "%H:%M %p")
 
     t = t.replace(hour=hour_from_ampm(c.hour, 'pm' in clock), minute=c.minute)
+
+    if weekdays is not None:
+        # move forward in time until we're on a class day
+        while t.weekday() not in weekdays:
+            t += timedelta(days=1)
 
     return datetime.strftime(t, "%Y%m%dT%H%M%S")
 
@@ -43,9 +48,12 @@ def parse_class(line):
 
     title = title.replace("&amp;", "&")
 
+    # time_begin needs to be on a day that class occurs. 0 is Monday.
+    day_numbers = ['MTWRF'.index(d) for d in days]
+
     time_begin, time_end = time.split('-')
-    time_begin = date_time_to_timestamp(start, time_begin)
-    time_end = date_time_to_timestamp(start, time_end)
+    time_begin = date_time_to_timestamp(start, time_begin, weekdays=day_numbers)
+    time_end = date_time_to_timestamp(start, time_end, weekdays=day_numbers)
     class_end = date_time_to_timestamp(end, "11:59 pm")
 
     # convert things like "MWF" -> "MO,WE,FR"
