@@ -99,7 +99,7 @@ def parse_schedule(text):
 
 if __name__ == "__main__":
     import sys
-    print parse_schedule(unicode(sys.stdin.read()))
+    print(parse_schedule(str(sys.stdin.read())))
 
 '''
 Django template for formatting calendars using the output of parse_schedule:
